@@ -1,0 +1,16 @@
+{
+  "default":"en",
+  "en":{
+    "appName":"RCT-LiPo Watcher",
+    "labelSensor":"Sensor Settings",
+    "sensorSel":"Select Sensor",
+    "cellCount":"Cell Count (S)",
+    "labelAlarm":"Alarm Settings",
+    "alarmValue":"Alarm At (%)",
+    "voiceFile":"Voicefile",
+    "winLabel":"Battery Charge",
+    "lipoLabel":"LiPo Cell",
+    "pos":"Yes",
+    "neg":"No"
+  }
+}
