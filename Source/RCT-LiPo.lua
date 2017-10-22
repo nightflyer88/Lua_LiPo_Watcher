@@ -154,7 +154,7 @@ local function initForm(subform)
     
     addRow(2)
     addLabel({label=trans19.averageValue,width=220})
-    addIntbox(avgValue,2,500,80,0,1,averageValueChanged)
+    addIntbox(avgValue,2,300,80,0,1,averageValueChanged)
     
     addRow(1)
     addLabel({label=trans19.labelAlarm,font=FONT_BOLD})
