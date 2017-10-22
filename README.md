@@ -9,8 +9,8 @@ Installation:
 - Copy Lang/RCT-LiPo.jsn to transmitters /Apps/Lang folder
 - Run application in transmitter
 
-Current info available on https://www.rc-thoughts.com/LiPo_Wathcer/
+Current info available on https://www.rc-thoughts.com/lipo-watcher/
 
 Tero from RC-Thoughts 2017
 
-![Display-picture](https://www.rc-thoughts.com/wp-content/uploads/2017/10/RCT-FuelDisplay011.png)
+![Display-picture](https://www.rc-thoughts.com/wp-content/uploads/2017/10/RCT-LiPoWatcher.gif)
