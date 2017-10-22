@@ -21,7 +21,7 @@ collectgarbage()
 ----------------------------------------------------------------------
 -- Locals for the application
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
-local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
+local sensId,sensPa,cellCnt,alarmVal,avgValue,alarmFile=0,0,0,0,80,false
 local altList={}
 ----------------------------------------------------------------------
 -- Read translations
@@ -94,6 +94,12 @@ local function cellCntChanged(value)
     system.pSave("cellCnt",cellCnt)
 end
 
+local function averageValueChanged(value)
+    avgValue=value
+    system.pSave("avgValue",avgValue)
+    roll = rollingAverage(avgValue)
+end
+
 local function alarmValChanged(value)
     alarmVal=value
     system.pSave("alarmVal",alarmVal)
@@ -145,6 +151,10 @@ local function initForm(subform)
     addRow(2)
     addLabel({label=trans19.cellCount,width=220})
     addIntbox(cellCnt,0,24,0,0,1,cellCntChanged)
+    
+    addRow(2)
+    addLabel({label=trans19.averageValue,width=220})
+    addIntbox(avgValue,2,500,80,0,1,averageValueChanged)
     
     addRow(1)
     addLabel({label=trans19.labelAlarm,font=FONT_BOLD})
@@ -236,6 +246,7 @@ local function init()
     sensId=pLoad("sensId",0)
     sensPa=pLoad("sensPa",0)
     cellCnt=pLoad("cellCnt",0)
+    avgValue=pLoad("avgValue",80)
     alarmVal=pLoad("alarmVal",0)
     alarmFile=pLoad("alarmFile","...")
     table.insert(altList,trans19.neg)
@@ -243,11 +254,11 @@ local function init()
     registerForm(1,MENU_APPS,trans19.appName,initForm)
     registerTelemetry(1,trans19.appName,0,dispLiPo)
     -- Set average-calculation
-    roll = rollingAverage(80)
+    roll = rollingAverage(avgValue)
     collectgarbage()
 end
 ----------------------------------------------------------------------
-lipoVersion="v.1.0"
+lipoVersion="v.1.1"
 setLanguage()
 collectgarbage()
 return {init=init,loop=loop,author="RC-Thoughts",version=lipoVersion,name=trans19.appName}

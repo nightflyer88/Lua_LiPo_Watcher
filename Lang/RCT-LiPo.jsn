@@ -5,6 +5,7 @@
     "labelSensor":"Sensor Settings",
     "sensorSel":"Select Sensor",
     "cellCount":"Cell Count (S)",
+    "averageValue":"Average Parameter",
     "labelAlarm":"Alarm Settings",
     "alarmValue":"Alarm At (%)",
     "voiceFile":"Voicefile",

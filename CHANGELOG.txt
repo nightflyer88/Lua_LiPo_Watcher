@@ -8,4 +8,8 @@
 
 2017-10-22  Tero Salminen  <tero@rc-thoughts.com>
 
+    * v.1.1 Added possibility to adjust averaging value
+
+2017-10-22  Tero Salminen  <tero@rc-thoughts.com>
+
     * v.1.0 First release
