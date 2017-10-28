@@ -5,13 +5,10 @@
     "labelSensor":"Sensor Settings",
     "sensorSel":"Select Sensor",
     "cellCount":"Cell Count (S)",
-    "averageValue":"Average Parameter",
     "labelAlarm":"Alarm Settings",
     "alarmValue":"Alarm At (%)",
     "voiceFile":"Voicefile",
     "winLabel":"Battery Charge",
-    "lipoLabel":"LiPo Cell",
-    "pos":"Yes",
-    "neg":"No"
+    "lipoLabel":"LiPo Cell"
   }
 }

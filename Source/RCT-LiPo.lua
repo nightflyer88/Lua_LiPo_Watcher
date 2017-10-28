@@ -21,8 +21,8 @@ collectgarbage()
 ----------------------------------------------------------------------
 -- Locals for the application
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
-local sensId,sensPa,cellCnt,alarmVal,avgValue,alarmFile=0,0,0,0,80,false
-local altList={}
+local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
+local timeNow,timeLast,timeFill,voltMax=0,0,0,0
 ----------------------------------------------------------------------
 -- Read translations
 local function setLanguage()
@@ -63,10 +63,10 @@ local function dispLiPo(width,height)
     if(height==69)then -- Big window
         lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format(trans19.winLabel)),3,string.format(trans19.winLabel),FONT_MINI)
         if (cellPerc==-1) then
-            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,"-%"),14,"-%",FONT_MAXI)
+            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,"-%"),16,"-%",FONT_MAXI)
             lcd.drawText(140-lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),53,"RC-Thoughts.com",FONT_MINI)
             else
-            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,string.format("%s%%",cellPerc)),14,string.format("%s%%",cellPerc),FONT_MAXI)
+            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,string.format("%s%%",cellPerc)),16,string.format("%s%%",cellPerc),FONT_MAXI)
             lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %.2fV",trans19.lipoLabel,cellVolt)),53,string.format("%s %.2fV",trans19.lipoLabel,cellVolt),FONT_MINI)
         end
         -- Do the LiPo bar only in big window
@@ -92,12 +92,6 @@ end
 local function cellCntChanged(value)
     cellCnt=value
     system.pSave("cellCnt",cellCnt)
-end
-
-local function averageValueChanged(value)
-    avgValue=value
-    system.pSave("avgValue",avgValue)
-    roll = rollingAverage(avgValue)
 end
 
 local function alarmValChanged(value)
@@ -151,10 +145,6 @@ local function initForm(subform)
     addRow(2)
     addLabel({label=trans19.cellCount,width=220})
     addIntbox(cellCnt,0,24,0,0,1,cellCntChanged)
-    
-    addRow(2)
-    addLabel({label=trans19.averageValue,width=220})
-    addIntbox(avgValue,2,300,80,0,1,averageValueChanged)
     
     addRow(1)
     addLabel({label=trans19.labelAlarm,font=FONT_BOLD})
@@ -217,10 +207,27 @@ end
 -- Runtime functions,read sensor,convert to percentage
 local function loop()
     local sensor=system.getSensorByID(sensId,sensPa)
+    local timeNow = system.getTimeCounter()
     if(sensor and sensor.valid) then
         voltTot=sensor.value
-        -- Count rolling average on total voltage and divide to cell-voltage
-        cellVolt = (roll(voltTot)/cellCnt)
+        -- Fill table at start
+        if(timeFill == 0) then
+            timeFill = timeNow + 2000
+        end
+        if(timeNow <= timeFill) then
+            cellVolt = (roll(voltTot)/cellCnt)
+        end
+        -- 
+        if(timeNow >= timeLast + 1000) then
+            cellVolt = (roll(voltTot)/cellCnt)
+            timeLast = timeNow
+            voltMax = 0
+        end
+        -- Track maximum voltage seen during this collection cycle
+		if voltTot > voltMax then	
+			voltMax = voltTot
+		end
+        
         -- Calculate cell-percentage from LiPo-table
         cellPerc=percCell(cellVolt)
         -- Take care of alarm if alarm is enabled, make sure it plays only once
@@ -231,8 +238,9 @@ local function loop()
         end
         else
         -- If we have no sensor set cell-percentage to -1 for screen-identification
-        cellPerc=-1
-    end
+        cellPerc = -1
+        timeFill = 0
+    end   
     -- If percentage is above alarm-level enable alarm
     if(cellPerc > alarmVal) then
         playDone=false
@@ -246,19 +254,16 @@ local function init()
     sensId=pLoad("sensId",0)
     sensPa=pLoad("sensPa",0)
     cellCnt=pLoad("cellCnt",0)
-    avgValue=pLoad("avgValue",80)
     alarmVal=pLoad("alarmVal",0)
     alarmFile=pLoad("alarmFile","...")
-    table.insert(altList,trans19.neg)
-    table.insert(altList,trans19.pos)
     registerForm(1,MENU_APPS,trans19.appName,initForm)
     registerTelemetry(1,trans19.appName,0,dispLiPo)
     -- Set average-calculation
-    roll = rollingAverage(avgValue)
+    roll = rollingAverage(10)
     collectgarbage()
 end
 ----------------------------------------------------------------------
-lipoVersion="v.1.1"
+lipoVersion="v.1.2"
 setLanguage()
 collectgarbage()
 return {init=init,loop=loop,author="RC-Thoughts",version=lipoVersion,name=trans19.appName}
