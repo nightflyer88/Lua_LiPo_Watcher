@@ -23,6 +23,46 @@ collectgarbage()
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
 local timeNow,timeLast,timeFill,voltMax=0,0,0,0
+local cellTyp,voltageDisplay
+local cellTypList={"LiPo","Nixx"}
+local percentList={}
+----------------------------------------------------------------------
+-- Table for binding cell-voltage to percentage
+local function readPercentList(index)
+    if index==1 then        --LiPo
+        percentList =                                                
+        {
+        {3.000, 0},           
+        {3.380, 5},
+        {3.580, 10},
+        {3.715, 15},
+        {3.747, 20},
+        {3.769, 25},
+        {3.791, 30},
+        {3.802, 35},
+        {3.812, 40},
+        {3.826, 45},
+        {3.839, 50},
+        {3.861, 55},
+        {3.883, 60},
+        {3.910, 65},
+        {3.936, 70},
+        {3.986, 75},
+        {3.999, 80},
+        {4.042, 85},
+        {4.085, 90},
+        {4.142, 95},
+        {4.170, 97},
+        {4.200, 100}            
+        }
+    elseif index==2 then    --Nixx
+        percentList =                                                
+        {
+        {0.500, 0},   
+        {1.300, 100}            
+        }
+    end
+end
 ----------------------------------------------------------------------
 -- Read translations
 local function setLanguage()
@@ -67,7 +107,11 @@ local function dispLiPo(width,height)
             lcd.drawText(140-lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),53,"RC-Thoughts.com",FONT_MINI)
             else
             lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,string.format("%s%%",cellPerc)),16,string.format("%s%%",cellPerc),FONT_MAXI)
-            lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %.2fV",trans19.lipoLabel,cellVolt)),53,string.format("%s %.2fV",trans19.lipoLabel,cellVolt),FONT_MINI)
+            if voltageDisplay==1 then
+                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.cellLabel,cellVolt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.cellLabel,cellVolt),FONT_MINI)
+            else
+                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt),FONT_MINI)
+            end
         end
         -- Do the LiPo bar only in big window
         LiPoGauge(cellPerc,1,0)
@@ -94,6 +138,17 @@ local function cellCntChanged(value)
     system.pSave("cellCnt",cellCnt)
 end
 
+local function cellTypChanged(value)
+    cellTyp=value
+    system.pSave("cellTyp",cellTyp)
+    readPercentList(cellTyp)
+end
+
+local function voltageDisplayChanged(value)
+    voltageDisplay=value
+    system.pSave("voltageDisplay",voltageDisplay)
+end
+
 local function alarmValChanged(value)
     alarmVal=value
     system.pSave("alarmVal",alarmVal)
@@ -106,6 +161,9 @@ end
 ----------------------------------------------------------------------
 -- Draw the main form (Application inteface)
 local function initForm(subform)
+    -- List of Battery display
+    local voltageDisplayList={trans19.singleCell,trans19.totalBattery}
+    
     -- List sensors only if menu is active to preserve memory at runtime 
     -- (measured up to 25% save if menu is not opened)
     sensorsAvailable={}
@@ -157,6 +215,14 @@ local function initForm(subform)
     addLabel({label=trans19.cellCount,width=220})
     addIntbox(cellCnt,0,24,0,0,1,cellCntChanged)
     
+    addRow(2)
+    addLabel({label=trans19.batteryTyp,width=220})
+    addSelectbox(cellTypList,cellTyp,true,cellTypChanged)
+    
+    addRow(2)
+    addLabel({label=trans19.voltageDisplay,width=170})
+    addSelectbox(voltageDisplayList,voltageDisplay,false,voltageDisplayChanged)
+    
     addRow(1)
     addLabel({label=trans19.labelAlarm,font=FONT_BOLD})
     
@@ -174,34 +240,6 @@ local function initForm(subform)
     formID=1
     collectgarbage()
 end
-----------------------------------------------------------------------
--- Table for binding cell-voltage to percentage
-local percentList =                                                
-{
-{3.000, 0},           
-{3.380, 5},
-{3.580, 10},
-{3.715, 15},
-{3.747, 20},
-{3.769, 25},
-{3.791, 30},
-{3.802, 35},
-{3.812, 40},
-{3.826, 45},
-{3.839, 50},
-{3.861, 55},
-{3.883, 60},
-{3.910, 65},
-{3.936, 70},
-{3.986, 75},
-{3.999, 80},
-{4.042, 85},
-{4.085, 90},
-{4.142, 95},
-{4.170, 97},
-{4.200, 100}            
-}
-
 
 ----------------------------------------------------------------------
 -- Count percentage from cell voltage
@@ -265,9 +303,9 @@ local function loop()
     
     local timeNow = system.getTimeCounter()
     if(sensor and sensor.valid) then
-        voltTot=sensor.value
+        voltTot=sensor.value 
         -- Fill table at start
-        if(timeFill == 0) then
+        if(timeFill == 0 or voltTot==0) then
             timeFill = timeNow + 2000
         end
         if(timeNow <= timeFill) then
@@ -309,6 +347,9 @@ local function init()
     sensId=pLoad("sensId",0)
     sensPa=pLoad("sensPa",0)
     cellCnt=pLoad("cellCnt",0)
+    cellTyp=pLoad("cellTyp",1)
+    readPercentList(cellTyp)
+    voltageDisplay=pLoad("voltageDisplay",1)
     alarmVal=pLoad("alarmVal",0)
     alarmFile=pLoad("alarmFile","...")
     registerForm(1,MENU_APPS,trans19.appName,initForm)
