@@ -58,7 +58,8 @@ local function readPercentList(index)
     elseif index==2 then    --Nixx
         percentList =                                                
         {
-        {0.500, 0},   
+        {0.900, 0},
+        {1.000, 5},   
         {1.300, 100}            
         }
     end
@@ -75,7 +76,7 @@ local function setLanguage()
     collectgarbage()
 end
 ----------------------------------------------------------------------
-local function LiPoGauge(percentage,ox,oy)
+local function BigGauge(percentage,ox,oy)
     -- Fuel bar 
     lcd.drawRectangle (8+ox,53+oy,30,11)
     lcd.drawRectangle (8+ox,41+oy,30,11)  
@@ -97,6 +98,29 @@ local function LiPoGauge(percentage,ox,oy)
     end
     collectgarbage()
 end
+
+local function SmallGauge(percentage,ox,oy)
+    -- Fuel bar 
+    lcd.drawRectangle (67+ox,3+oy,15,18)
+    lcd.drawRectangle (51+ox,3+oy,15,18)  
+    lcd.drawRectangle (35+ox,3+oy,15,18)  
+    lcd.drawRectangle (19+ox,3+oy,15,18)  
+    lcd.drawRectangle (3+ox,3+oy,15,18)
+    -- Bar chart
+    if(cellPerc >= 0) then
+        local nSolidBar=math.floor(percentage / 20)
+        local nFracBar=(percentage-nSolidBar * 20) / 20
+        local i
+        -- Solid bars
+        for i=0,nSolidBar-1,1 do 
+            lcd.drawFilledRectangle (3+i*16+ox,3+oy,15,18) 
+        end  
+        -- Fractional bar
+        local x=math.floor(3+nSolidBar*16)
+        lcd.drawFilledRectangle (x+ox,3+oy,15*nFracBar,18)
+    end
+    collectgarbage()
+end
 ----------------------------------------------------------------------
 -- Draw the telemetry windows
 local function dispLiPo(width,height)
@@ -113,14 +137,14 @@ local function dispLiPo(width,height)
                 lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt),FONT_MINI)
             end
         end
-        -- Do the LiPo bar only in big window
-        LiPoGauge(cellPerc,1,0)
-        else -- Small window
+        BigGauge(cellPerc,1,0)
+    else -- Small window
         if (cellPerc==-1) then
             lcd.drawText(145-lcd.getTextWidth(FONT_BIG,"-%"),1,"-%",FONT_BIG)
             else
             lcd.drawText(145-lcd.getTextWidth(FONT_BIG,string.format("%s%%",cellPerc)),1,string.format("%s%%",cellPerc),FONT_BIG)
         end
+        SmallGauge(cellPerc,1,0)
     end
     collectgarbage()
 end
