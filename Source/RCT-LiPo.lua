@@ -113,6 +113,17 @@ local function initForm(subform)
     local sensList={}
     local curIndex=-1
     local descr=""
+    -- Add some of RX Telemetry items to beginning in list of sensors, get name from translation
+    sensList[#sensList + 1] = string.format("%s",trans19.sensorRx1)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 1,["id"] = 999,["label"] = trans19.sensorRx1}
+    sensList[#sensList + 1] = string.format("%s",trans19.sensorRx2)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 2,["id"] = 999,["label"] = trans19.sensorRx2}
+    sensList[#sensList + 1] = string.format("%s",trans19.sensorRxB)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 3,["id"] = 999,["label"] = trans19.sensorRxB}
+    if(sensId == 999) then
+        curIndex = sensPa
+    end
+    -- Add sensors
     for index,sensor in ipairs(sensors) do 
         if(sensor.param==0) then
             descr=sensor.label
@@ -206,7 +217,22 @@ end
 ----------------------------------------------------------------------
 -- Runtime functions,read sensor,convert to percentage
 local function loop()
-    local sensor=system.getSensorByID(sensId,sensPa)
+    local sensor = {}
+    local sensorTx = system.getTxTelemetry()
+    if(sensId == 999) then
+        sensor.valid = true
+        sensor.unit = "V"
+        if(sensPa == 1) then
+            sensor.value = sensorTx.rx1Voltage
+        elseif (sensPa == 2) then
+            sensor.value = sensorTx.rx2Voltage
+        elseif (sensPa == 3) then
+            sensor.value = sensorTx.rxBVoltage
+        end
+        else
+        sensor=system.getSensorByID(sensId,sensPa)
+    end
+    
     local timeNow = system.getTimeCounter()
     if(sensor and sensor.valid) then
         voltTot=sensor.value

@@ -9,6 +9,9 @@
     "alarmValue":"Alarm At (%)",
     "voiceFile":"Voicefile",
     "winLabel":"Battery Charge",
-    "lipoLabel":"LiPo Cell"
+    "lipoLabel":"LiPo Cell",
+    "sensorRx1":"Rx1 Voltage",
+    "sensorRx2":"Rx2 Voltage",
+    "sensorRxB":"RxB Voltage"
   }
 }
