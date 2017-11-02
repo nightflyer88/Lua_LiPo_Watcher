@@ -22,7 +22,7 @@ collectgarbage()
 -- Locals for the application
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
-local timeNow,timeLast,timeFill,voltMax=0,0,0,0
+local timeNow,timeLast,timeFill=0,0,0
 local cellTyp,voltageDisplay
 local cellTypList={"LiPo","Nixx"}
 local percentList={}
@@ -336,8 +336,8 @@ end
 -- Runtime functions,read sensor,convert to percentage
 local function loop()
     local sensor = {}
-    local sensorTx = system.getTxTelemetry()
     if(sensId == 999) then
+        local sensorTx = system.getTxTelemetry()
         sensor.valid = true
         sensor.unit = "V"
         if(sensPa == 1) then
@@ -364,17 +364,12 @@ local function loop()
         if(timeNow >= timeLast + 1000) then
             cellVolt = (roll(voltTot)/cellCnt)
             timeLast = timeNow
-            voltMax = 0
         end
-        -- Track maximum voltage seen during this collection cycle
-		if voltTot > voltMax then	
-			voltMax = voltTot
-		end
         
         -- Calculate cell-percentage from LiPo-table
         cellPerc=percCell(cellVolt)
         -- Take care of alarm if alarm is enabled, make sure it plays only once
-        if(not playDone and alarmVal > 0 and cellPerc <= alarmVal and alarmFile ~= "...") then
+        if(not playDone and alarmVal > 0 and cellPerc <= alarmVal and alarmFile ~= "..." and timeNow>timeFill) then
             system.playFile(alarmFile,AUDIO_QUEUE)
             system.playNumber(cellPerc,0,"%")
             playDone=true   
