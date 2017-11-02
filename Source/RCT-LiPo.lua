@@ -88,7 +88,7 @@ local function setLanguage()
     collectgarbage()
 end
 ----------------------------------------------------------------------
-local function BigGauge(percentage,ox,oy)
+local function BigGauge(ox,oy)
     -- Fuel bar 
     lcd.drawRectangle (8+ox,53+oy,30,11)
     lcd.drawRectangle (8+ox,41+oy,30,11)  
@@ -97,21 +97,28 @@ local function BigGauge(percentage,ox,oy)
     lcd.drawRectangle (8+ox,5+oy,30,11)
     -- Bar chart
     if(cellPerc >= 0) then
-        local nSolidBar=math.floor(percentage / 20)
-        local nFracBar=(percentage-nSolidBar * 20) / 20
+        if cellPerc > 50 then
+            lcd.setColor(0,200,0)  -- green 
+        elseif cellPerc > 20 then
+            lcd.setColor(255,128,0)  -- orange
+        else
+            lcd.setColor(200,0,0)  -- red
+        end
+        local nSolidBar=math.floor(cellPerc / 20)
+        local nFracBar=(cellPerc-nSolidBar * 20) / 20
         local i
         -- Solid bars
         for i=0,nSolidBar-1,1 do 
-            lcd.drawFilledRectangle (8+ox,53-i*12+oy,30,11) 
+            lcd.drawFilledRectangle (9+ox,54-i*12+oy,28,9) 
         end  
         -- Fractional bar
-        local y=math.floor( 53-nSolidBar*12+(1-nFracBar)*11+0.5)
-        lcd.drawFilledRectangle (8+ox,y+oy,30,11*nFracBar)
+        local y=math.ceil(54-nSolidBar*12+(1-nFracBar)*9)
+        lcd.drawFilledRectangle (9+ox,y+oy,28,9*nFracBar)
     end
     collectgarbage()
 end
 
-local function SmallGauge(percentage,ox,oy)
+local function SmallGauge(ox,oy)
     -- Fuel bar 
     lcd.drawRectangle (67+ox,3+oy,15,18)
     lcd.drawRectangle (51+ox,3+oy,15,18)  
@@ -120,16 +127,23 @@ local function SmallGauge(percentage,ox,oy)
     lcd.drawRectangle (3+ox,3+oy,15,18)
     -- Bar chart
     if(cellPerc >= 0) then
-        local nSolidBar=math.floor(percentage / 20)
-        local nFracBar=(percentage-nSolidBar * 20) / 20
+        if cellPerc > 50 then
+            lcd.setColor(0,200,0)  -- green 
+        elseif cellPerc > 20 then
+            lcd.setColor(255,128,0)  -- orange
+        else
+            lcd.setColor(200,0,0)  -- red
+        end
+        local nSolidBar=math.floor(cellPerc / 20)
+        local nFracBar=(cellPerc-nSolidBar * 20) / 20
         local i
         -- Solid bars
         for i=0,nSolidBar-1,1 do 
-            lcd.drawFilledRectangle (3+i*16+ox,3+oy,15,18) 
+            lcd.drawFilledRectangle (4+i*16+ox,4+oy,13,16) 
         end  
         -- Fractional bar
-        local x=math.floor(3+nSolidBar*16)
-        lcd.drawFilledRectangle (x+ox,3+oy,15*nFracBar,18)
+        local x=math.floor(4+nSolidBar*16)
+        lcd.drawFilledRectangle (x+ox,4+oy,13*nFracBar,16)
     end
     collectgarbage()
 end
@@ -149,14 +163,14 @@ local function dispLiPo(width,height)
                 lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt),FONT_MINI)
             end
         end
-        BigGauge(cellPerc,1,0)
+        BigGauge(1,0)
     else -- Small window
         if (cellPerc==-1) then
             lcd.drawText(145-lcd.getTextWidth(FONT_BIG,"-%"),1,"-%",FONT_BIG)
             else
             lcd.drawText(145-lcd.getTextWidth(FONT_BIG,string.format("%s%%",cellPerc)),1,string.format("%s%%",cellPerc),FONT_BIG)
         end
-        SmallGauge(cellPerc,1,0)
+        SmallGauge(1,0)
     end
     collectgarbage()
 end
