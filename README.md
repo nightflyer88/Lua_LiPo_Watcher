@@ -1,16 +1,19 @@
-# LUA LiPo Watcher
-Simple battery monitoring with total flight-pack voltage
+# LUA Rx Battery Monitor
+Displays the receiver battery voltage in percent, and show it in a bar graph.
 
-Works in DC/DS-14/16/24 with frimware 4.11 and up
+Works in DC/DS-14/16/24 with firmware 4.22 and up
 
 Installation:
-- Copy RCT-LiPo.lc to transmitters SD-card to /Apps folder
-- If you have no "Lang" folder in /Apps create it
-- Copy Lang/RCT-LiPo.jsn to transmitters /Apps/Lang folder
+- Copy file **RxBattMon.lc** and folder **RxBattMon** to transmitters Apps-folder
 - Run application in transmitter
 
-Current info available on https://www.rc-thoughts.com/lipo-watcher/
+![screen000](https://raw.githubusercontent.com/nightflyer88/Lua_RxBattMon/master/img/Screen000.bmp)
+![screen001](https://raw.githubusercontent.com/nightflyer88/Lua_RxBattMon/master/img/Screen001.bmp)
+![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_RxBattMon/master/img/Screen002.bmp)
 
-Tero from RC-Thoughts 2017
-
-![Display-picture](https://www.rc-thoughts.com/wp-content/uploads/2017/10/RCT-LiPoWatcher.gif)
+```
+Version history:
+V1.4    26.12.17    Rename to RxBattMon, small changes
+V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
+V1.2    01.11.17    forked from RCT LiPo Watcher
+```
