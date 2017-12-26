@@ -1,8 +1,7 @@
 --[[
     ---------------------------------------------------------
-    LiPo Watcher takes flight pack voltage and calculates
-    cell-voltage from that. Cell-voltage is then used to
-    determine LiPo-charge. 
+    Rx Battery Monitor displays the receiver battery voltage 
+    in percent, and displays it in a bar graph.
     
     Voltage is moothed heavily to eliminate spikes generating
     false alarms.
@@ -12,14 +11,17 @@
     
     Requires DC/DS-14/16/24 with firmware 4.22 or up.
     ---------------------------------------------------------
-    LiPo Watcher is part of RC-Thoughts Jeti Tools.
-    ---------------------------------------------------------
-    Released under MIT-license by Tero @ RC-Thoughts.com 2017
-    ---------------------------------------------------------
+
+    V1.4    26.12.17    Rename to RxBattMon, small changes
+    V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
+    V1.2    01.11.17    forked from RCT LiPo Watcher
+
 --]]
-collectgarbage()
+
 ----------------------------------------------------------------------
 -- Locals for the application
+local rxBattversion="1.4"
+local lang
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
 local timeNow,timeLast,timeFill=0,0,0
@@ -80,12 +82,11 @@ end
 -- Read translations
 local function setLanguage()
     local lng=system.getLocale()
-    local file=io.readall("Apps/Lang/RCT-LiPo.jsn")
+    local file=io.readall("Apps/RxBattMon/RxBattMon.jsn")
     local obj=json.decode(file)
     if(obj) then
-        trans19=obj[lng] or obj[obj.default]
+        lang=obj[lng] or obj[obj.default]
     end
-    collectgarbage()
 end
 ----------------------------------------------------------------------
 local function BigGauge(ox,oy)
@@ -115,7 +116,6 @@ local function BigGauge(ox,oy)
         local y=math.ceil(54-nSolidBar*12+(1-nFracBar)*9)
         lcd.drawFilledRectangle (9+ox,y+oy,28,9*nFracBar)
     end
-    collectgarbage()
 end
 
 local function SmallGauge(ox,oy)
@@ -145,22 +145,19 @@ local function SmallGauge(ox,oy)
         local x=math.floor(4+nSolidBar*16)
         lcd.drawFilledRectangle (x+ox,4+oy,13*nFracBar,16)
     end
-    collectgarbage()
 end
 ----------------------------------------------------------------------
 -- Draw the telemetry windows
-local function dispLiPo(width,height)
+local function dispBatt(width,height)
     if(height==69)then -- Big window
-        lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format(trans19.winLabel)),3,string.format(trans19.winLabel),FONT_MINI)
         if (cellPerc==-1) then
-            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,"-%"),16,"-%",FONT_MAXI)
-            lcd.drawText(140-lcd.getTextWidth(FONT_MINI,"RC-Thoughts.com"),53,"RC-Thoughts.com",FONT_MINI)
+            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,"-%"),10,"-%",FONT_MAXI)
             else
-            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,string.format("%s%%",cellPerc)),16,string.format("%s%%",cellPerc),FONT_MAXI)
+            lcd.drawText(140-lcd.getTextWidth(FONT_MAXI,string.format("%s%%",cellPerc)),10,string.format("%s%%",cellPerc),FONT_MAXI)
             if voltageDisplay==1 then
-                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.cellLabel,cellVolt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.cellLabel,cellVolt),FONT_MINI)
+                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],lang.cellLabel,cellVolt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],lang.cellLabel,cellVolt),FONT_MINI)
             else
-                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],trans19.battLabel,cellVolt*cellCnt),FONT_MINI)
+                lcd.drawText(140-lcd.getTextWidth(FONT_MINI,string.format("%s %s %.2fV",cellTypList[cellTyp],lang.battLabel,cellVolt*cellCnt)),53,string.format("%s %s %.2fV",cellTypList[cellTyp],lang.battLabel,cellVolt*cellCnt),FONT_MINI)
             end
         end
         BigGauge(1,0)
@@ -172,7 +169,6 @@ local function dispLiPo(width,height)
         end
         SmallGauge(1,0)
     end
-    collectgarbage()
 end
 ----------------------------------------------------------------------
 -- Store settings when changed by user
@@ -212,7 +208,7 @@ end
 -- Draw the main form (Application inteface)
 local function initForm(subform)
     -- List of Battery display
-    local voltageDisplayList={trans19.singleCell,trans19.totalBattery}
+    local voltageDisplayList={lang.singleCell,lang.totalBattery}
     
     -- List sensors only if menu is active to preserve memory at runtime 
     -- (measured up to 25% save if menu is not opened)
@@ -222,12 +218,12 @@ local function initForm(subform)
     local curIndex=-1
     local descr=""
     -- Add some of RX Telemetry items to beginning in list of sensors, get name from translation
-    sensList[#sensList + 1] = string.format("%s",trans19.sensorRx1)
-    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 1,["id"] = 999,["label"] = trans19.sensorRx1}
-    sensList[#sensList + 1] = string.format("%s",trans19.sensorRx2)
-    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 2,["id"] = 999,["label"] = trans19.sensorRx2}
-    sensList[#sensList + 1] = string.format("%s",trans19.sensorRxB)
-    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 3,["id"] = 999,["label"] = trans19.sensorRxB}
+    sensList[#sensList + 1] = string.format("%s",lang.sensorRx1)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 1,["id"] = 999,["label"] = lang.sensorRx1}
+    sensList[#sensList + 1] = string.format("%s",lang.sensorRx2)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 2,["id"] = 999,["label"] = lang.sensorRx2}
+    sensList[#sensList + 1] = string.format("%s",lang.sensorRxB)
+    sensorsAvailable[#sensorsAvailable + 1] = {["unit"] = "V", ["param"] = 3,["id"] = 999,["label"] = lang.sensorRxB}
     if(sensId == 999) then
         curIndex = sensPa
     end
@@ -243,7 +239,6 @@ local function initForm(subform)
             end
         end
     end
-    collectgarbage()
     
     local form,addRow,addLabel=form,form.addRow,form.addLabel
     local addIntbox,addSelectbox=form.addIntbox,form.addSelectbox
@@ -252,43 +247,39 @@ local function initForm(subform)
     local addTextbox=form.addTextbox
     
     addRow(1)
-    addLabel({label="---     RC-Thoughts Jeti Tools      ---",font=FONT_BIG})
-    
-    addRow(1)
-    addLabel({label=trans19.labelSensor,font=FONT_BOLD})
+    addLabel({label=lang.labelSensor,font=FONT_BOLD})
     
     addRow(2)
-    addLabel({label=trans19.sensorSel})
+    addLabel({label=lang.sensorSel})
     addSelectbox(sensList,curIndex,true,sensorChanged)
     
     addRow(2)
-    addLabel({label=trans19.cellCount,width=220})
+    addLabel({label=lang.cellCount,width=220})
     addIntbox(cellCnt,0,24,0,0,1,cellCntChanged)
     
     addRow(2)
-    addLabel({label=trans19.batteryTyp,width=220})
+    addLabel({label=lang.batteryTyp,width=220})
     addSelectbox(cellTypList,cellTyp,true,cellTypChanged)
     
     addRow(2)
-    addLabel({label=trans19.voltageDisplay,width=170})
+    addLabel({label=lang.voltageDisplay,width=170})
     addSelectbox(voltageDisplayList,voltageDisplay,false,voltageDisplayChanged)
     
     addRow(1)
-    addLabel({label=trans19.labelAlarm,font=FONT_BOLD})
+    addLabel({label=lang.labelAlarm,font=FONT_BOLD})
     
     addRow(2)
-    addLabel({label=trans19.alarmValue,width=220})
+    addLabel({label=lang.alarmValue,width=220})
     addIntbox(alarmVal,0,99,0,0,1,alarmValChanged)
     
     form.addRow(2)
-    addLabel({label=trans19.voiceFile})
+    addLabel({label=lang.voiceFile})
     addAudioFilebox(alarmFile,alarmFileChanged)
     
     addRow(1)
-    addLabel({label="Powered by RC-Thoughts.com-"..lipoVersion.." ",font=FONT_MINI,alignRight=true})
+    addLabel({label="Powered by M.Lehmann V"..rxBattversion.." ",font=FONT_MINI,alignRight=true})
     
     formID=1
-    collectgarbage()
 end
 
 ----------------------------------------------------------------------
@@ -313,7 +304,6 @@ local function percCell(cellVoltage)
         end
     end
     result = math.modf(result)
-    collectgarbage()
     return result
 end
 
@@ -329,7 +319,6 @@ function rollingAverage(period)
         t[#t+1]=n
         return sum(table.unpack(t)) / #t
     end
-    collectgarbage()
     return average
 end
 ----------------------------------------------------------------------
@@ -397,14 +386,12 @@ local function init()
     voltageDisplay=pLoad("voltageDisplay",1)
     alarmVal=pLoad("alarmVal",0)
     alarmFile=pLoad("alarmFile","...")
-    registerForm(1,MENU_APPS,trans19.appName,initForm)
-    registerTelemetry(1,trans19.appName,0,dispLiPo)
+    registerForm(1,MENU_APPS,lang.appName,initForm)
+    registerTelemetry(1,lang.appName,0,dispBatt)
     -- Set average-calculation
     roll = rollingAverage(10)
     collectgarbage()
 end
 ----------------------------------------------------------------------
-lipoVersion="v.1.2"
 setLanguage()
-collectgarbage()
-return {init=init,loop=loop,author="RC-Thoughts",version=lipoVersion,name=trans19.appName}
+return {init=init,loop=loop,author="M.Lehmann",version=rxBattversion,name=lang.appName}
