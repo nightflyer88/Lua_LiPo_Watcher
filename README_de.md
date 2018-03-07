@@ -1,4 +1,4 @@
-# LUA Rx Battery Monitor
+# Rx Battery Monitor
 
 Zeigt die Empfängerspannung in Prozent an, und stellt diese grafisch dar. 
 
