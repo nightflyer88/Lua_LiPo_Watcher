@@ -1,4 +1,4 @@
-# LUA Rx Battery Monitor
+# Rx Battery Monitor
 
 Displays the receiver voltage in percent and displays it graphically.
 
