@@ -1,6 +1,7 @@
 # LUA Rx Battery Monitor
 
 Zeigt die Empfängerspannung in Prozent an, und stellt diese grafisch dar. 
+
 In den Einstellungen einfach den Akkutyp (LiPo, Li-ion, Nixx) und Zellenzahl auswählen, und die App macht den rest. Im grossen Telemetriefenster kann auch die effektive Akkuspannung angezeigt werden (Einzelzelle oder Gesamtspannung). Es besteht auch die Möglichkeit einen Alarm zu setzten wenn der Füllstand einen definierten Wert unterschreitet.  
 Der Akkufüllstand wird anhand der Akkuspezifischen Entladekurve berechnet, dadurch ergibt sich ein relativ genauer Wert.    
 
