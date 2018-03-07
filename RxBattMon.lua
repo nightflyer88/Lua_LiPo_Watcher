@@ -12,6 +12,7 @@
     Requires DC/DS-14/16/24 with firmware 4.22 or up.
     ---------------------------------------------------------
 
+    V1.5    07.03.18    add Li-ion cells
     V1.4    26.12.17    Rename to RxBattMon, small changes
     V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
     V1.2    01.11.17    forked from RCT LiPo Watcher
@@ -20,13 +21,13 @@
 
 ----------------------------------------------------------------------
 -- Locals for the application
-local rxBattversion="1.4"
+local rxBattversion="1.5"
 local lang
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
 local timeNow,timeLast,timeFill=0,0,0
 local cellTyp,voltageDisplay
-local cellTypList={"LiPo","Nixx"}
+local cellTypList={"LiPo","Li-ion","Nixx"}
 local percentList={}
 ----------------------------------------------------------------------
 -- Table for binding cell-voltage to percentage
@@ -57,7 +58,26 @@ local function readPercentList(index)
         {4.170, 97},
         {4.200, 100}            
         }
-    elseif index==2 then    --Nixx
+    elseif index==2 then    --Li-ion
+        percentList =
+        {
+        {3.250, 0},
+        {3.300, 5},
+        {3.327, 10},
+        {3.355, 15},
+        {3.377, 20},
+        {3.395, 25},
+        {3.435, 30},
+        {3.490, 40},
+        {3.630, 60},
+        {3.755, 75},
+        {3.790, 80},
+        {3.840, 85},
+        {3.870, 90},
+        {3.915, 95},
+        {4.050, 100}
+        }
+    elseif index==3 then    --Nixx
         percentList =                                                
         {
         {0.900, 0},           
@@ -272,7 +292,7 @@ local function initForm(subform)
     addLabel({label=lang.alarmValue,width=220})
     addIntbox(alarmVal,0,99,0,0,1,alarmValChanged)
     
-    form.addRow(2)
+    addRow(2)
     addLabel({label=lang.voiceFile})
     addAudioFilebox(alarmFile,alarmFileChanged)
     
