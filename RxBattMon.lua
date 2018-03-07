@@ -12,7 +12,7 @@
     Requires DC/DS-14/16/24 with firmware 4.22 or up.
     ---------------------------------------------------------
 
-    V1.5beta19.02.18    add Li-ion cells
+    V1.5    07.03.18    add Li-ion cells
     V1.4    26.12.17    Rename to RxBattMon, small changes
     V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
     V1.2    01.11.17    forked from RCT LiPo Watcher
@@ -21,7 +21,7 @@
 
 ----------------------------------------------------------------------
 -- Locals for the application
-local rxBattversion="1.5b"
+local rxBattversion="1.5"
 local lang
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
@@ -61,21 +61,21 @@ local function readPercentList(index)
     elseif index==2 then    --Li-ion
         percentList =
         {
-        {3.500, 0}, 
-        {3.528, 5},
-        {3.565, 10},
-        {3.600, 15},
-        {3.630, 20},
-        {3.665, 25},
-        {3.700, 30},
-        {3.755, 40},
-        {3.885, 60},
-        {3.986, 75},
-        {4.010, 80},
-        {4.020, 85},
-        {4.035, 90},
-        {4.050, 95},
-        {4.100, 100} 
+        {3.250, 0},
+        {3.300, 5},
+        {3.327, 10},
+        {3.355, 15},
+        {3.377, 20},
+        {3.395, 25},
+        {3.435, 30},
+        {3.490, 40},
+        {3.630, 60},
+        {3.755, 75},
+        {3.790, 80},
+        {3.840, 85},
+        {3.870, 90},
+        {3.915, 95},
+        {4.050, 100}
         }
     elseif index==3 then    --Nixx
         percentList =                                                
