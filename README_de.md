@@ -11,7 +11,8 @@ Der Akkufüllstand wird anhand der Akkuspezifischen Entladekurve berechnet, dadu
 ![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_RxBattMon/master/img/Screen002.bmp)
 
 ```
-Version history:
+Versionen:
+V1.6    21.10.18    aufgeräumt, LiFePo Akkutyp hinzugefügt, LiPo Prozentliste überarbeitet
 V1.5    07.03.18    Li-ion Zellen hinzugefügt
 V1.4    26.12.17    nach RxBattMon umbenannt, kleine Änderungen
 V1.3    02.11.17    Rx Sensoren werden unterstützt, Nixx Zellen hinzugefügt

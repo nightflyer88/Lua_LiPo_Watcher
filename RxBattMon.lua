@@ -12,6 +12,7 @@
     Requires DC/DS-14/16/24 with firmware 4.22 or up.
     ---------------------------------------------------------
 
+    V1.6    21.10.18    cleanup, add LiFePo Battery type, optimize LiPo percent list
     V1.5    07.03.18    add Li-ion cells
     V1.4    26.12.17    Rename to RxBattMon, small changes
     V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
@@ -19,16 +20,23 @@
 
 --]]
 
+-- App version
+local rxBattversion="1.6"
+
 ----------------------------------------------------------------------
 -- Locals for the application
-local rxBattversion="1.5"
 local lang
 local roll,voltTot,cellVolt,cellPerc,playDone=0,0,0,-1,false
 local sensId,sensPa,cellCnt,alarmVal,alarmFile=0,0,0,0,false
 local timeNow,timeLast,timeFill=0,0,0
 local cellTyp,voltageDisplay
-local cellTypList={"LiPo","Li-ion","Nixx"}
 local percentList={}
+
+
+----------------------------------------------------------------------
+-- Battery type list
+local cellTypList={"LiPo","Li-ion","LiFePo","Nixx"}
+
 ----------------------------------------------------------------------
 -- Table for binding cell-voltage to percentage
 local function readPercentList(index)
@@ -36,27 +44,26 @@ local function readPercentList(index)
         percentList =                                                
         {
         {3.000, 0},           
-        {3.380, 5},
-        {3.580, 10},
-        {3.715, 15},
-        {3.747, 20},
-        {3.769, 25},
-        {3.791, 30},
-        {3.802, 35},
-        {3.812, 40},
-        {3.826, 45},
-        {3.839, 50},
-        {3.861, 55},
-        {3.883, 60},
-        {3.910, 65},
-        {3.936, 70},
-        {3.986, 75},
-        {3.999, 80},
+        {3.250, 5},
+        {3.500, 10},
+        {3.675, 15},
+        {3.696, 20},
+        {3.718, 25},
+        {3.737, 30},
+        {3.753, 35},
+        {3.772, 40},
+        {3.789, 45},
+        {3.807, 50},
+        {3.827, 55},
+        {3.850, 60},
+        {3.881, 65},
+        {3.916, 70},
+        {3.948, 75},
+        {3.987, 80},
         {4.042, 85},
         {4.085, 90},
-        {4.142, 95},
-        {4.170, 97},
-        {4.200, 100}            
+        {4.115, 95},
+        {4.150, 100}            
         }
     elseif index==2 then    --Li-ion
         percentList =
@@ -77,7 +84,32 @@ local function readPercentList(index)
         {3.915, 95},
         {4.050, 100}
         }
-    elseif index==3 then    --Nixx
+    elseif index==3 then    --LiFePo
+        percentList =
+        {
+        {2.80,0},
+        {3.06,5},
+        {3.14,10},
+        {3.17,15},
+        {3.19,20},
+        {3.20,25},
+        {3.21,30},
+        {3.22,35},
+        {3.23,40},
+        {3.24,45},
+        {3.25,50},
+        {3.25,55},
+        {3.26,60},
+        {3.26,65},
+        {3.27,70},
+        {3.28,75},
+        {3.28,80},
+        {3.29,85},
+        {3.29,90},
+        {3.29,95},
+        {3.30,100}
+        }
+    elseif index==4 then    --Nixx
         percentList =                                                
         {
         {0.900, 0},           
@@ -298,8 +330,6 @@ local function initForm(subform)
     
     addRow(1)
     addLabel({label="Powered by M.Lehmann V"..rxBattversion.." ",font=FONT_MINI,alignRight=true})
-    
-    formID=1
 end
 
 ----------------------------------------------------------------------
@@ -329,7 +359,7 @@ end
 
 ----------------------------------------------------------------------
 -- Create a rolling average of voltage to prevent false alarms
-function rollingAverage(period)
+local function rollingAverage(period)
     local t={}
     function sum(a,...)
         if a then return a+sum(...) else return 0 end
@@ -392,7 +422,6 @@ local function loop()
     if(cellPerc > alarmVal) then
         playDone=false
     end
-    collectgarbage()
 end
 ----------------------------------------------------------------------
 -- Application initialization
@@ -410,7 +439,6 @@ local function init()
     registerTelemetry(1,lang.appName,0,dispBatt)
     -- Set average-calculation
     roll = rollingAverage(10)
-    collectgarbage()
 end
 ----------------------------------------------------------------------
 setLanguage()

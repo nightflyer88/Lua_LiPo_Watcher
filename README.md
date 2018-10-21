@@ -11,6 +11,7 @@ The battery level is calculated using the battery-specific discharge curve, resu
 
 ```
 Version history:
+V1.6    21.10.18    cleanup, add LiFePo Battery type, optimize LiPo percent list
 V1.5    07.03.18    add Li-ion cells
 V1.4    26.12.17    Rename to RxBattMon, small changes
 V1.3    02.11.17    Rx sensors are supported, Nixx cells are supported
