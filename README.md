@@ -1,5 +1,7 @@
 # Rx Battery Monitor
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R69PMKTCXQBUU&source=url)
+
 Displays the receiver voltage in percent and displays it graphically.
 
 In the settings just select the battery type (LiPo, Li-ion, Nixx) and cell number, and the app does the rest. In the large telemetry window, the effective battery voltage can also be displayed (single cell or total voltage). It is also possible to set an alarm when the level falls below a defined value.
